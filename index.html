@@ -4,20 +4,31 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>超級大酷炫扣考神器 Pro</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg: #EEF2F6;
+            /* --- 粉紅系主題色 --- */
+            --bg: #FFF0F5; /* 淺粉背景 */
             --surface: #FFFFFF;
-            --primary: #4361EE;
-            --text-main: #2B2D42;
-            --text-sub: #8D99AE;
-            --sick-grad: linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%);
-            --mens-grad: linear-gradient(135deg, #EC4899 0%, #F43F5E 100%);
+            --primary: #FF8BA7; /* 主色調：珊瑚粉 */
+            --primary-dark: #FF6B8B;
+            --text-main: #5D4E52; /* 深暖灰字體 */
+            --text-sub: #A39498;
+            
+            /* --- 狀態色 (柔和版) --- */
+            --safe-bg: #E8FDF5; --safe-text: #10B981;
+            --warn-bg: #FFF4E6; --warn-text: #F59E0B;
+            --danger-bg: #FFEBEB; --danger-text: #FF4757;
+
+            /* --- 進度條漸層 --- */
+            /* 病假：夢幻紫粉 */
+            --sick-grad: linear-gradient(135deg, #E0C3FC 0%, #C084FC 100%);
+            /* 生理假：熱情桃粉 */
+            --mens-grad: linear-gradient(135deg, #FFB6B9 0%, #FF6B6B 100%);
         }
 
         body {
-            font-family: 'Inter', system-ui, sans-serif;
+            font-family: 'Nunito', 'Noto Sans TC', sans-serif;
             background-color: var(--bg);
             color: var(--text-main);
             margin: 0;
@@ -25,32 +36,289 @@
             display: flex;
             justify-content: center;
             min-height: 100vh;
+            background-image: radial-gradient(#ffe4e9 10%, transparent 10%);
+            background-size: 20px 20px; /* 加一點可愛的點點背景 */
         }
 
         .app-wrapper { width: 100%; max-width: 500px; padding-bottom: 50px; }
 
         /* Header */
         header { text-align: center; margin-bottom: 30px; }
-        h1 { margin: 0; font-size: 26px; font-weight: 900; letter-spacing: -0.5px; }
-        p.subtitle { margin: 5px 0 0; font-size: 13px; color: var(--text-sub); }
+        h1 { margin: 0; font-size: 28px; font-weight: 900; letter-spacing: -0.5px; color: var(--primary-dark); }
+        p.subtitle { margin: 8px 0 0; font-size: 14px; color: var(--text-sub); }
 
         /* Add Form */
         .add-card {
-            background: var(--surface); padding: 12px; border-radius: 16px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05); display: flex; gap: 10px; margin-bottom: 25px;
+            background: var(--surface); padding: 15px; border-radius: 20px;
+            box-shadow: 0 8px 20px rgba(255, 139, 167, 0.15); display: flex; gap: 10px; margin-bottom: 25px;
+            border: 2px solid #FFE4E9;
         }
-        input, select { padding: 12px; border: 1px solid #E2E8F0; border-radius: 12px; outline: none; background: #F8FAFC; width: 100%; font-size: 15px; }
-        .btn-add {
-            background: var(--primary); color: white; border: none; border-radius: 12px;
-            width: 50px; font-size: 24px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+        input, select { 
+            padding: 12px 16px; border: 2px solid #F0E4E8; border-radius: 16px; 
+            outline: none; background: #FFFBFC; width: 100%; font-size: 15px; color: var(--text-main);
             transition: 0.2s;
         }
-        .btn-add:active { transform: scale(0.9); }
+        input:focus, select:focus { border-color: var(--primary); background: #fff; }
+        
+        .btn-add {
+            background: var(--primary); color: white; border: none; border-radius: 16px;
+            width: 54px; font-size: 24px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+            transition: 0.2s; box-shadow: 0 4px 10px rgba(255, 139, 167, 0.3);
+        }
+        .btn-add:hover { background: var(--primary-dark); transform: translateY(-2px); }
+        .btn-add:active { transform: scale(0.95); }
 
         /* Course Card */
         .course-card {
-            background: var(--surface); border-radius: 20px; padding: 20px;
-            margin-bottom: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.04); position: relative;
+            background: var(--surface); border-radius: 24px; padding: 24px;
+            margin-bottom: 24px; box-shadow: 0 8px 25px rgba(255, 139, 167, 0.1); position: relative;
+            border: 1px solid #FFF0F5;
         }
-        .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px; }
-        .c-name { font-size: 18
+        .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 18px; }
+        .c-name { font-size: 20px; font-weight: 800; display: flex; align-items: center; gap: 8px; }
+        .c-meta { font-size: 13px; color: var(--text-sub); margin-top: 4px; margin-left: 32px; }
+        .btn-del { background: none; border: none; color: #E0D4D8; font-size: 20px; cursor: pointer; transition: 0.2s; }
+        .btn-del:hover { color: var(--danger-text); transform: scale(1.1); }
+
+        /* Dashboard & Progress */
+        .dashboard {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+            background: #FFFBFC; padding: 12px; border-radius: 18px; margin-bottom: 24px;
+            border: 2px solid #F8F0F4;
+        }
+        .dash-item { text-align: center; font-size: 13px; font-weight: 700; display: flex; flex-direction: column; gap: 6px; color: var(--text-sub); }
+        .badge { padding: 6px 12px; border-radius: 12px; font-weight: 800; font-size: 14px; display: flex; align-items: center; justify-content: center; gap: 4px;}
+        .safe { background: var(--safe-bg); color: var(--safe-text); }
+        .warn { background: var(--warn-bg); color: var(--warn-text); }
+        .danger { background: var(--danger-bg); color: var(--danger-text); }
+
+        .progress-track {
+            height: 18px; background: #F0E4E8; border-radius: 9px; position: relative; margin-bottom: 24px;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+        }
+        .bar-seg { height: 100%; float: left; transition: width 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); position: relative; }
+        .b-sick { background: var(--sick-grad); border-radius: 9px 0 0 9px; z-index: 2; }
+        .b-mens { background: var(--mens-grad); border-radius: 0 9px 9px 0; z-index: 1; }
+        .rounded { border-radius: 9px !important; }
+
+        .limit-mark {
+            position: absolute; top: -6px; bottom: -6px; width: 3px; background: var(--text-main); z-index: 10;
+            border-radius: 2px; border: 2px solid white;
+        }
+        .limit-txt {
+            position: absolute; top: -28px; left: 50%; transform: translateX(-50%);
+            font-size: 11px; font-weight: 900; background: var(--surface); padding: 3px 8px; border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.08); color: var(--primary-dark);
+        }
+
+        /* Controls */
+        .controls { display: flex; gap: 12px; }
+        .ctrl-group {
+            flex: 1; background: #FFFBFC; padding: 10px 12px; border-radius: 18px;
+            display: flex; justify-content: space-between; align-items: center; border: 2px solid #F8F0F4;
+        }
+        .ctrl-label { font-size: 12px; font-weight: 700; color: var(--text-sub); display: flex; align-items: center; gap: 4px; }
+        .val { font-size: 20px; font-weight: 900; }
+        .v-sick { color: #C084FC; } .v-mens { color: #FF6B6B; }
+        
+        .btn-act {
+            border: none; cursor: pointer; font-weight: 800; border-radius: 12px;
+            display: flex; align-items: center; justify-content: center; transition: 0.2s;
+        }
+        .btn-m { background: transparent; color: #C0B4B8; width: 28px; font-size: 20px; }
+        .btn-m:hover { color: var(--primary); background: #FFF0F5; }
+        .btn-p { background: white; color: var(--text-main); width: 38px; height: 38px; border: 2px solid #F0E4E8; box-shadow: 0 4px 8px rgba(0,0,0,0.05); font-size: 15px; }
+        .btn-p:hover { border-color: var(--primary); color: var(--primary); transform: translateY(-2px); box-shadow: 0 6px 12px rgba(255, 139, 167, 0.2); }
+        .btn-p:active { transform: scale(0.95); }
+
+        /* Data Sync Section */
+        .sync-section {
+            margin-top: 40px; padding: 25px; background: #fff; border-radius: 24px; text-align: center;
+            border: 3px dashed #FFC4D0; background: #FFF9FA;
+        }
+        .sync-btn {
+            background: var(--text-main); color: white; border: none; padding: 12px 24px; border-radius: 12px; 
+            font-size: 15px; cursor: pointer; margin: 8px; font-weight: 800; transition: 0.2s;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1); display: inline-flex; align-items: center; gap: 8px;
+        }
+        .sync-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(0,0,0,0.15); }
+        .sync-btn:active { transform: scale(0.95); }
+        .sync-btn.import { background: var(--primary); }
+        .sync-btn.import:hover { background: var(--primary-dark); box-shadow: 0 6px 15px rgba(255, 139, 167, 0.3); }
+    </style>
+</head>
+<body>
+
+<div class="app-wrapper">
+    <header>
+        <h1>✨ 超級大酷炫扣考神器 <span style="color:var(--primary)">Pro</span> 🌸</h1>
+        <p class="subtitle">🕵️‍♀️ 雙軌偵測 ． ⚡️ 一鍵＋2 ． ☁️ 跨裝置傳送門</p>
+    </header>
+
+    <div class="add-card">
+        <input type="text" id="name" placeholder="📝 輸入課程名稱..." style="flex:2">
+        <select id="weekly" style="flex:1">
+            <option value="1">📅 1節/週</option>
+            <option value="2" selected>📅 2節/週 (預設)</option>
+            <option value="3">📅 3節/週</option>
+            <option value="4">📅 4節/週</option>
+        </select>
+        <button class="btn-add" onclick="add()">✨</button>
+    </div>
+
+    <div id="list"></div>
+
+    <div class="sync-section">
+        <h3 style="margin:0 0 10px 0; color:var(--primary-dark);">☁️ 跨裝置雲端傳送門</h3>
+        <p style="font-size:13px; color:var(--text-sub); margin-bottom:20px;">
+            換手機了嗎？用這裡把資料打包帶走！📦<br>
+            (不同裝置資料不互通喔)
+        </p>
+        <button class="sync-btn" onclick="exportData()">📤 打包資料 (產生代碼)</button>
+        <button class="sync-btn import" onclick="importData()">📥 解壓縮 (貼上代碼)</button>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", render);
+
+    // 使用相同的儲存 key，舊資料會保留
+    function getData() { return JSON.parse(localStorage.getItem("ck_final")) || []; }
+    function saveData(d) { localStorage.setItem("ck_final", JSON.stringify(d)); }
+
+    function add() {
+        let name = document.getElementById('name').value.trim();
+        let weekly = parseInt(document.getElementById('weekly').value);
+        if(!name) return;
+        let total = weekly * 18;
+        let data = getData();
+        data.push({ id: Date.now(), name, total, limit: Math.ceil(total/3), sick:0, mens:0 });
+        saveData(data);
+        document.getElementById('name').value = '';
+        render();
+    }
+
+    function update(id, type, val) {
+        let data = getData();
+        let item = data.find(x => x.id === id);
+        if(item) {
+            if(type==='sick') item.sick = Math.max(0, item.sick+val);
+            if(type==='mens') item.mens = Math.max(0, item.mens+val);
+            saveData(data);
+            render();
+        }
+    }
+
+    function del(id) {
+        if(confirm("🗑️ 確定要刪除這堂課的紀錄嗎？")) { saveData(getData().filter(x=>x.id!==id)); render(); }
+    }
+
+    // --- 轉移功能 ---
+    function exportData() {
+        let data = localStorage.getItem("ck_final");
+        if(!data || data === "[]") return alert("📭 目前沒有資料可以打包喔！");
+        let code = btoa(encodeURIComponent(data));
+        navigator.clipboard.writeText(code).then(() => {
+            alert("✅ 代碼已複製！\n請貼到另一台裝置的「📥 解壓縮」裡。");
+        }).catch(() => {
+            prompt("👇 請手動複製這串代碼 👇", code);
+        });
+    }
+
+    function importData() {
+        let code = prompt("👇 請貼上來自另一台裝置的代碼 👇");
+        if(!code) return;
+        try {
+            let json = decodeURIComponent(atob(code));
+            if(confirm("⚠️ 注意！\n匯入將會「覆蓋」目前手機上的所有紀錄。\n確定要繼續嗎？")) {
+                localStorage.setItem("ck_final", json);
+                render();
+                alert("🎉 成功！資料轉移完成！");
+            }
+        } catch(e) {
+            alert("❌ 代碼格式錯誤，請重新複製一次。");
+        }
+    }
+
+    function render() {
+        let list = document.getElementById('list');
+        let data = getData();
+        list.innerHTML = '';
+
+        if(data.length === 0) {
+            list.innerHTML = '<div style="text-align:center;color:#C0B4B8;margin:40px 0;">📭 這裡空空的<br>快去上面新增課程吧！✨</div>';
+            return;
+        }
+
+        data.forEach(item => {
+            let limit = item.limit;
+            let total = item.sick + item.mens;
+            let max = Math.max(limit*1.3, total*1.1);
+            
+            // 系統狀態
+            let sysSt = item.sick >= limit ? '<span class="badge danger">❌ 扣考</span>' : `<span class="badge safe">✅ 安全 (${item.sick}/${limit})</span>`;
+            
+            // 真實狀態
+            let realSt = "";
+            let left = limit - total;
+            if(total >= limit) realSt = '<span class="badge danger">💥 扣考</span>';
+            else if(left <= 2) realSt = `<span class="badge warn">⚠️ 剩 ${left} 節</span>`;
+            else realSt = `<span class="badge safe">💖 剩 ${left} 節</span>`;
+
+            let sPct = (item.sick/max)*100;
+            let mPct = (item.mens/max)*100;
+            let lPos = (limit/max)*100;
+            let sRad = item.mens===0?'rounded':'';
+            let mRad = item.sick===0?'rounded':'';
+
+            let html = `
+            <div class="course-card">
+                <div class="card-header">
+                    <div>
+                        <div class="c-name">📕 ${item.name}</div>
+                        <div class="c-meta">總節數 ${item.total}｜🎯 扣考線 ${limit}</div>
+                    </div>
+                    <button class="btn-del" onclick="del(${item.id})">🗑️</button>
+                </div>
+
+                <div class="dashboard">
+                    <div class="dash-item"><span>🏫 系統顯示</span>${sysSt}</div>
+                    <div class="dash-item"><span>💣 真實風險</span>${realSt}</div>
+                </div>
+
+                <div class="progress-track">
+                    <div class="limit-mark" style="left:${lPos}%"></div>
+                    <div class="limit-txt" style="left:${lPos}%">1/3 線</div>
+                    <div class="bar-seg b-sick ${sRad}" style="width:${sPct}%"></div>
+                    <div class="bar-seg b-mens ${mRad}" style="width:${mPct}%"></div>
+                </div>
+
+                <div class="controls">
+                    <div class="ctrl-group">
+                        <div>
+                            <div class="ctrl-label">🤒 病假</div>
+                            <div class="val v-sick">${item.sick}</div>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:4px">
+                            <button class="btn-act btn-m" onclick="update(${item.id},'sick',-1)">-</button>
+                            <button class="btn-act btn-p" style="color:#C084FC" onclick="update(${item.id},'sick',2)">+2</button>
+                        </div>
+                    </div>
+                    <div class="ctrl-group">
+                        <div>
+                            <div class="ctrl-label">🌸 生理假</div>
+                            <div class="val v-mens">${item.mens}</div>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:4px">
+                            <button class="btn-act btn-m" onclick="update(${item.id},'mens',-1)">-</button>
+                            <button class="btn-act btn-p" style="color:#FF6B6B" onclick="update(${item.id},'mens',2)">+2</button>
+                        </div>
+                    </div>
+                </div>
+            </div>`;
+            list.innerHTML += html;
+        });
+    }
+</script>
+</body>
+</html>
