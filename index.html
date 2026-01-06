@@ -57,7 +57,7 @@
             --shadow-color: 14, 165, 233;
             --input-bg: #F7FBFF;
             --sick-grad: linear-gradient(135deg, #60A5FA 0%, #3B82F6 100%);
-            --mens-grad: linear-gradient(135deg, #2DD4BF 0%, #0D9488 100%); /* 藍綠色 */
+            --mens-grad: linear-gradient(135deg, #2DD4BF 0%, #0D9488 100%);
         }
 
         /* 😎 酷帥黑 (Dark Mode) */
@@ -66,7 +66,7 @@
             --surface: #1E1E1E;
             --surface-sub: #252525;
             --primary: #444444;
-            --primary-dark: #FFFFFF; /* 在黑底中，亮色是強調 */
+            --primary-dark: #FFFFFF;
             --text-main: #E0E0E0;
             --text-sub: #888888;
             --border: #333333;
@@ -89,7 +89,6 @@
         [data-theme="black"] .progress-track { background: #333; }
         [data-theme="black"] .btn-p { background: #333; border-color: #444; color: #fff; }
 
-        /* 一般亮色模式的狀態色 */
         :not([data-theme="black"]) .safe { background: #E3FBF5; color: #059669; }
         :not([data-theme="black"]) .warn { background: #FFF8E1; color: #D97706; }
         :not([data-theme="black"]) .danger { background: #FFF0F0; color: #E11D48; }
@@ -129,7 +128,7 @@
         header { text-align: center; margin-bottom: 35px; }
         h1 { 
             margin: 0; font-size: 26px; font-weight: 700; letter-spacing: 1px; color: var(--primary-dark);
-            white-space: nowrap; /* 強制不換行 */
+            white-space: nowrap; 
         }
         
         p.subtitle { 
@@ -172,6 +171,7 @@
         .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; }
         
         .c-name { font-size: 19px; font-weight: 700; display: flex; align-items: center; gap: 8px; letter-spacing: 0.5px; color: var(--text-main); }
+        /* 增加每週節數的顯示 */
         .c-meta { font-size: 13px; color: var(--text-sub); margin-top: 5px; margin-left: 32px; font-weight: 400; }
         
         .btn-del { background: none; border: none; color: var(--text-sub); font-size: 20px; cursor: pointer; transition: 0.2s; }
@@ -300,7 +300,6 @@
         document.documentElement.setAttribute('data-theme', themeName);
         localStorage.setItem('ck_theme', themeName);
         
-        // 更新按鈕狀態
         document.querySelectorAll('.theme-btn').forEach(btn => {
             btn.classList.remove('active');
             if(btn.classList.contains('t-' + themeName)) btn.classList.add('active');
@@ -312,7 +311,7 @@
         setTheme(savedTheme);
     }
 
-    // --- 資料功能 (保持不變) ---
+    // --- 資料功能 ---
     function getData() { return JSON.parse(localStorage.getItem("ck_final")) || []; }
     function saveData(d) { localStorage.setItem("ck_final", JSON.stringify(d)); }
 
@@ -321,8 +320,17 @@
         let weekly = parseInt(document.getElementById('weekly').value);
         if(!name) return;
         let total = weekly * 18;
+        
         let data = getData();
-        data.push({ id: Date.now(), name, total, limit: Math.ceil(total/3), sick:0, mens:0 });
+        data.push({ 
+            id: Date.now(), 
+            name, 
+            weekly, // 儲存每週節數
+            total, 
+            limit: Math.ceil(total/3), 
+            sick: 0, 
+            mens: 0 
+        });
         saveData(data);
         document.getElementById('name').value = '';
         render();
@@ -384,6 +392,9 @@
             let total = item.sick + item.mens;
             let max = Math.max(limit*1.3, total*1.1);
             
+            // 處理舊資料：如果沒有 weekly 屬性，用總節數推算，或預設為 2
+            let weeklyHours = item.weekly || (item.total / 18) || 2; 
+
             // 系統狀態
             let sysSt = item.sick >= limit ? '<span class="badge danger">❌ 扣考</span>' : `<span class="badge safe">✅ 安全 (${item.sick}/${limit})</span>`;
             
@@ -405,7 +416,7 @@
                 <div class="card-header">
                     <div>
                         <div class="c-name">📕 ${item.name}</div>
-                        <div class="c-meta">總節數 ${item.total}｜🎯 扣考線 ${limit}</div>
+                        <div class="c-meta">每週${weeklyHours}節｜總共${item.total}節｜🎯 扣考線${limit}</div>
                     </div>
                     <button class="btn-del" onclick="del(${item.id})">🗑️</button>
                 </div>
@@ -430,7 +441,7 @@
                         </div>
                         <div style="display:flex;align-items:center;gap:4px">
                             <button class="btn-act btn-m" onclick="update(${item.id},'sick',-1)">-</button>
-                            <button class="btn-act btn-p" style="color:var(--text-main)" onclick="update(${item.id},'sick',2)">+2</button>
+                            <button class="btn-act btn-p" style="color:var(--text-main)" onclick="update(${item.id},'sick',${weeklyHours})">+${weeklyHours}</button>
                         </div>
                     </div>
                     <div class="ctrl-group">
@@ -440,7 +451,7 @@
                         </div>
                         <div style="display:flex;align-items:center;gap:4px">
                             <button class="btn-act btn-m" onclick="update(${item.id},'mens',-1)">-</button>
-                            <button class="btn-act btn-p" style="color:var(--text-main)" onclick="update(${item.id},'mens',2)">+2</button>
+                            <button class="btn-act btn-p" style="color:var(--text-main)" onclick="update(${item.id},'mens',${weeklyHours})">+${weeklyHours}</button>
                         </div>
                     </div>
                 </div>
