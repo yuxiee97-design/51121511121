@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Course Keeper Ultimate</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #EEF2F6;
+            --surface: #FFFFFF;
+            --primary: #4361EE;
+            --text-main: #2B2D42;
+            --text-sub: #8D99AE;
+            
+            /* 狀態色 */
+            --safe-bg: #E0FDF4; --safe-text: #10B981;
+            --warn-bg: #FFFBEB; --warn-text: #F59E0B;
+            --danger-bg: #FEF2F2; --danger-text: #EF4444;
+
+            /* 進度條漸層 */
+            --sick-grad: linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%);
+            --mens-grad: linear-gradient(135deg, #EC4899 0%, #F43F5E 100%);
+        }
+
+        body {
+            font-family: 'Inter', 'Noto Sans TC', sans-serif;
+            background-color: var(--bg);
+            color: var(--text-main);
+            margin: 0;
+            padding: 24px;
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        .app-wrapper { width: 100%; max-width: 500px; }
+
+        /* Header */
+        header { margin-bottom: 30px; text-align: center; }
+        h1 { margin: 0; font-size: 24px; font-weight: 800; letter-spacing: -0.5px; }
+        p.subtitle { margin: 8px 0 0; font-size: 13px; color: var(--text-sub); }
+
+        /* Add Form */
+        .add-card {
+            background: var(--surface);
+            padding: 16px;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+            display: flex;
+            gap: 12px;
+            margin-bottom: 30px;
+            align-items: center;
+        }
+        input, select {
+            padding: 12px 16px;
+            border: 1px solid #E2E8F0;
+            border-radius: 12px;
+            font-size: 15px;
+            outline: none;
+            background: #F8FAFC;
+            transition: 0.2s;
+        }
+        input:focus, select:focus { border-color: var(--primary); background: #fff; }
+        
+        .btn-add {
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            width: 48px; height: 48px;
+            font-size: 24px;
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 4px 12px rgba(67, 97, 238, 0.3);
+            transition: transform 0.2s;
+        }
+        .btn-add:active { transform: scale(0.95); }
+
+        /* Course Card */
+        .course-card {
+            background: var(--surface);
+            border-radius: 24px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 8px 20px -6px rgba(0,0,0,0.06);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+        }
+        .c-name { font-size: 20px; font-weight: 700; color: var(--text-main); }
+        .c-meta { font-size: 12px; color: var(--text-sub); margin-top: 4px; font-weight: 500; }
+        .btn-del {
+            background: transparent; border: none; color: #CBD5E1;
+            font-size: 22px; cursor: pointer; padding: 0; line-height: 1;
+        }
+        .btn-del:hover { color: var(--danger-text); }
+
+        /* Dashboard Grid */
+        .dashboard {
+            display: grid;
+            grid-template-columns: 1fr 1px 1fr;
+            gap: 0;
+            background: #F8FAFC;
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 24px;
+        }
+        .dash-divider { background: #E2E8F0; height: 100%; width: 1px; }
+        
+        .dash-item { display: flex; flex-direction: column; align-items: center; text-align: center; }
+        .dash-label { font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--text-sub); margin-bottom: 6px; letter-spacing: 0.5px; }
+        
+        .status-badge {
+            font-size: 13px; font-weight: 700;
+            padding: 6px 12px; border-radius: 20px;
+            display: inline-block;
+        }
+        .st-safe { background: var(--safe-bg); color: var(--safe-text); }
+        .st-warn { background: var(--warn-bg); color: var(--warn-text); }
+        .st-danger { background: var(--danger-bg); color: var(--danger-text); }
+
+        /* Progress Bar */
+        .progress-track {
+            height: 16px;
+            background: #E2E8F0;
+            border-radius: 8px;
+            position: relative;
+            margin-bottom: 24px;
+            overflow: visible;
+        }
+        .bar-segment { height: 100%; float: left; transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1); position: relative; }
+        .bar-sick { background: var(--sick-grad); border-radius: 8px 0 0 8px; z-index: 2; }
+        .bar-mens { background: var(--mens-grad); border-radius: 0 8px 8px 0; z-index: 1; }
+        
+        .rounded-full { border-radius: 8px !important; }
+
+        .limit-marker {
+            position: absolute; top: -6px; bottom: -6px; width: 2px;
+            background: var(--text-main); z-index: 10;
+            box-shadow: 0 0 0 2px var(--surface);
+        }
+        .limit-text {
+            position: absolute; top: -25px; left: 50%; transform: translateX(-50%);
+            font-size: 10px; font-weight: 800; color: var(--text-main);
+            background: var(--surface); padding: 2px 6px; border-radius: 6px;
+            white-space: nowrap; box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        /* Controls */
+        .controls { display: flex; gap: 12px; }
+        .ctrl-group {
+            flex: 1;
+            background: #F8FAFC;
+            border-radius: 16px;
+            padding: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border: 1px solid #F1F5F9;
+        }
+        .ctrl-info { display: flex; flex-direction: column; padding-left: 8px; }
+        .ctrl-title { font-size: 12px; font-weight: 700; color: var(--text-sub); }
+        .ctrl-val { font-size: 18px; font-weight: 800; }
+        .val-sick { color: #6366F1; }
+        .val-mens { color: #EC4899; }
+
+        .btn-action {
+            width: 36px; height: 36px;
+            border-radius: 10px;
+            border: none;
+            font-weight: 700; cursor: pointer;
+            transition: 0.2s;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .btn-plus { background: white; color: var(--text-main); font-size: 16px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); border: 1px solid #E2E8F0; }
+        .btn-minus { background: transparent; color: #CBD5E1; font-size: 18px; width: 24px; }
+        
+        .btn-plus:active { transform: scale(0.9); }
+        .btn-plus.sick:hover { border-color: #6366F1; color: #6366F1; }
+        .btn-plus.mens:hover { border-color: #EC4899; color: #EC4899; }
+
+    </style>
+</head>
+<body>
+
+<div class="app-wrapper">
+    <header>
+        <h1>超級大酷炫扣考神器 <span style="color:var(--primary)">Pro</span></h1>
+        <p class="subtitle">雙擊6666</p>
+    </header>
+
+    <div class="add-card">
+        <input type="text" id="newCName" placeholder="課程名稱" style="flex:2">
+        <select id="newCWeekly" style="flex:1">
+            <option value="2">1節/週</option>
+            <option value="1">2 節/週</option>
+            <option value="3">3 節/週</option>
+            <option value="3">4 節/週</option>
+        </select>
+        <button class="btn-add" onclick="addCourse()">＋</button>
+    </div>
+
+    <div id="list"></div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", render);
+
+    function getData() { return JSON.parse(localStorage.getItem("ck_ultimate")) || []; }
+    function saveData(d) { localStorage.setItem("ck_ultimate", JSON.stringify(d)); }
+
+    function addCourse() {
+        const name = document.getElementById('newCName').value.trim();
+        const weekly = parseInt(document.getElementById('newCWeekly').value);
+        if(!name) return;
+
+        const total = weekly * 18;
+        const data = getData();
+        
+        // 預設加入範例數據
+        data.push({
+            id: Date.now(),
+            name,
+            total,
+            limit: Math.ceil(total / 3),
+            sick: 0,
+            mens: 0
+        });
+        saveData(data);
+        document.getElementById('newCName').value = '';
+        render();
+    }
+
+    function update(id, type, val) {
+        const data = getData();
+        const item = data.find(x => x.id === id);
+        if(item) {
+            if(type === 'sick') item.sick = Math.max(0, item.sick + val);
+            if(type === 'mens') item.mens = Math.max(0, item.mens + val);
+            saveData(data);
+            render();
+        }
+    }
+
+    function del(id) {
+        if(confirm("確定刪除此課程？")) {
+            saveData(getData().filter(x => x.id !== id));
+            render();
+        }
+    }
+
+    function render() {
+        const list = document.getElementById('list');
+        const data = getData();
+        list.innerHTML = '';
+
+        if(data.length === 0) {
+            list.innerHTML = '<div style="text-align:center; color:#CBD5E1; padding:40px;">尚未新增任何課程<br>請由上方輸入</div>';
+            return;
+        }
+
+        data.forEach(item => {
+            const limit = item.limit; // 1/3 門檻
+            const totalUsed = item.sick + item.mens;
+            
+            // --- 邏輯判斷 ---
+            
+            // 1. 系統視角 (只看病假)
+            let sysStatus = "";
+            let sysClass = "st-safe";
+            if (item.sick >= limit) {
+                sysStatus = "扣考"; sysClass = "st-danger";
+            } else {
+                sysStatus = `安全 (${item.sick}/${limit})`; 
+            }
+
+            // 2. 真實風險 (合併計算)
+            let realStatus = "";
+            let realClass = "st-safe";
+            const safeGap = limit - totalUsed;
+            
+            if (totalUsed >= limit) {
+                realStatus = "⚠️ 扣考"; realClass = "st-danger";
+            } else if (safeGap <= 2) {
+                realStatus = `剩 ${safeGap} 節`; realClass = "st-warn";
+            } else {
+                realStatus = `剩 ${safeGap} 節`;
+            }
+
+            // 進度條比例 (以 limit * 1.5 為最大值，讓畫面好看)
+            const maxScale = Math.max(limit * 1.3, totalUsed * 1.1);
+            const sickPct = (item.sick / maxScale) * 100;
+            const mensPct = (item.mens / maxScale) * 100;
+            const limitPos = (limit / maxScale) * 100;
+
+            // 圓角修飾
+            let sRadius = (item.mens === 0) ? 'rounded-full' : '';
+            let mRadius = (item.sick === 0) ? 'rounded-full' : '';
+
+            const html = `
+            <div class="course-card">
+                <div class="card-header">
+                    <div>
+                        <div class="c-name">${item.name}</div>
+                        <div class="c-meta">總節數 ${item.total}｜扣考線 ${limit}</div>
+                    </div>
+                    <button class="btn-del" onclick="del(${item.id})">×</button>
+                </div>
+
+                <div class="dashboard">
+                    <div class="dash-item">
+                        <span class="dash-label">💻 系統顯示</span>
+                        <span class="status-badge ${sysClass}">${sysStatus}</span>
+                    </div>
+                    <div class="dash-divider"></div>
+                    <div class="dash-item">
+                        <span class="dash-label">⚖️ 真實風險</span>
+                        <span class="status-badge ${realClass}">${realStatus}</span>
+                    </div>
+                </div>
+
+                <div class="progress-track">
+                    <div class="limit-marker" style="left:${limitPos}%"></div>
+                    <div class="limit-text" style="left:${limitPos}%">1/3 (${limit})</div>
+                    
+                    <div class="bar-segment bar-sick ${sRadius}" style="width:${sickPct}%"></div>
+                    <div class="bar-segment bar-mens ${mRadius}" style="width:${mensPct}%"></div>
+                </div>
+
+                <div class="controls">
+                    <div class="ctrl-group">
+                        <div class="ctrl-info">
+                            <span class="ctrl-title">病假</span>
+                            <span class="ctrl-val val-sick">${item.sick}</span>
+                        </div>
+                        <div style="display:flex; align-items:center; gap:5px;">
+                            <button class="btn-action btn-minus" onclick="update(${item.id}, 'sick', -1)">-</button>
+                            <button class="btn-action btn-plus sick" onclick="update(${item.id}, 'sick', 2)">+2</button>
+                        </div>
+                    </div>
+
+                    <div class="ctrl-group">
+                        <div class="ctrl-info">
+                            <span class="ctrl-title">生理</span>
+                            <span class="ctrl-val val-mens">${item.mens}</span>
+                        </div>
+                        <div style="display:flex; align-items:center; gap:5px;">
+                            <button class="btn-action btn-minus" onclick="update(${item.id}, 'mens', -1)">-</button>
+                            <button class="btn-action btn-plus mens" onclick="update(${item.id}, 'mens', 2)">+2</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            `;
+            list.innerHTML += html;
+        });
+    }
+</script>
+
+</body>
+</html>
